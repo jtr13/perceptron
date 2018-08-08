@@ -7,7 +7,7 @@
 draw_mis_vector(pt)
 }
 \arguments{
-\item{pt}{point(x, y)}
+\item{pt}{vector or 1 row matrix of x,y coordinates}
 }
 \description{
 function to draw a vector from origin to misclassified point

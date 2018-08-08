@@ -12,6 +12,7 @@ Y4 <- c(-1, 1, 1, 1)
 # from : github.com/billderose-zz/perceptron
 
 Random.Unit <-function(n, dim, threshold) {
+
   points <- runif(n * dim)
   points <- matrix(points, ncol = dim)
   label <- ifelse(apply(points, 1, sum) < threshold, -1, 1)

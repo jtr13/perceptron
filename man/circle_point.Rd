@@ -4,12 +4,10 @@
 \alias{circle_point}
 \title{function to circle a point}
 \usage{
-circle_point(x, y)
+circle_point(pt)
 }
 \arguments{
-\item{x}{x-coordinate}
-
-\item{y}{y-coordinate}
+\item{pt}{vector or 1 row matrix of x,y coordinates}
 }
 \description{
 function to circle a point
