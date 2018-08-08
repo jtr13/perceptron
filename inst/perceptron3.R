@@ -63,13 +63,13 @@ Perceptron <- function(data, threshold) {
 
 THRESHOLD <- 0.75
 # pts <- Random.Unit(100, 2, THRESHOLD)
-load("pts.rds")
+# load("pts.rds")
 
-plot(pts[, 3:4], xlab = "X", ylab = "Y",
-     pch = 16,
+#plot(pts[, 3:4], xlab = "X", ylab = "Y",
+#     pch = 16,
 #     pch = ifelse(pts[, 1] == 1, 2, 8),
-     col = ifelse(pts[, 1] == 1, "blue", "red"))
+#     col = ifelse(pts[, 1] == 1, "blue", "red"))
 
-w <- Perceptron(pts, THRESHOLD)
+#w <- Perceptron(pts, THRESHOLD)
 
 
