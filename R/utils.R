@@ -124,7 +124,7 @@ draw_hyperplane <- function(w) {
 # draw points
 #
 
-draw_points <- function(X1, X2, Y) {
+draw_points <- function(X1, X2, Y, axes = FALSE) {
 
   colors <- c("green", "pink")
 
@@ -134,7 +134,7 @@ draw_points <- function(X1, X2, Y) {
 
   plot(X1, X2, pch = 16, bty = "l",
      col = colors[as.factor(Y)],
-     asp = 1, axes = FALSE)
+     asp = 1, axes = axes, las = 1)
 }
 
 #' function to draw a weight vector
