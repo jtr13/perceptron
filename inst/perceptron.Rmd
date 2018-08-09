@@ -1,0 +1,86 @@
+---
+title: "perceptron"
+author: "Joyce Robbins"
+date: "8/8/2018"
+output: 
+  html_document:
+    code_folding: hide
+    fig_height: 4
+    fig_width: 6
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(perceptron)
+knitr::opts_chunk$set(echo = TRUE)
+
+#install_github("jtr13/perceptron")
+```
+
+The perceptron is a simple algorithm that learns to classify inputs into two classes by adjusting the weights (w) in the equation $y_i =$ sign$(w_ix_i)$ until all inputs in a training set are correctly classified. Here the steps of algorithm will be presented visually in two-dimensional space.
+
+### The setup
+
+We start by plotting $(x_1, x_2)$, coloring each point by class. Note that the points can be separated by a line; if this is not the case, the algorithm won't work.
+
+```{r}
+X <- matrix(c(-1, 1, 2, 4, 6, 4, 6, 6, 5, 8,
+                -3, 7, 4, 4, 2, 8, 6, 8, 10, 10)/5, 10)
+
+Y <- c(-1, -1, -1, -1, -1, 1, 1, 1, 1, 1)
+X <- cbind(rep(1, length(Y)), X)
+perceptron::draw_points(X[,2], X[,3], Y, axes = TRUE)
+```
+
+
+We start with an arbitrary weight vector, $(w0, w1, w2)$.  Often $(0, 0, 0)$ is used, but we'll start with $(0, .5, .5) so we can visualize it:
+
+```{r weightvector}
+W <- c(0, .5, .5)
+shift <- shift(W)
+perceptron::draw_points(X[,2], X[,3], Y, axes = TRUE)
+perceptron::draw_weight_vector(W)
+perceptron::label_vector(shift["x"],
+                         shift["y"],
+                         W[2] + shift["x"],
+                         W[3] + shift["y"], 
+                         "weight")
+```
+
+Next we circle any point for which $y_i \neq$ sign$(w_ix_i)$ -- these are the misclassified points.
+
+```{r circlepoints}
+perceptron::draw_points(X[,2], X[,3], Y, axes = TRUE)
+perceptron::draw_weight_vector(W)
+perceptron::label_vector(shift["x"],
+                         shift["y"],
+                         W[2] + shift["x"],
+                         W[3] + shift["y"], 
+                         "weight")
+mis.points <- X[sign(W %*% t(X)) != Y, , drop = F]
+apply(mis.points, 1, perceptron::circle_point)
+```
+
+
+Note that visually, *the line orthogonal to the weight vector* is the decision boundary between the two classes.  This is true because for points on the line, sign$(w_ix_i) = 0.$
+
+```{r}
+perceptron::draw_points(X[,2], X[,3], Y, axes = TRUE)
+perceptron::draw_weight_vector(W)
+perceptron::label_vector(shift["x"],
+                         shift["y"],
+                         W[2] + shift["x"],
+                         W[3] + shift["y"], 
+                         "weight")
+mis.points <- X[sign(W %*% t(X)) != Y, , drop = F]
+apply(mis.points, 1, perceptron::circle_point)
+perceptron::draw_hyperplane(W)
+x0 <- par()$usr[1]
+y0 <- x0*slope(W) + intercept(W)
+x1 <- floor(par()$usr[2])
+y1 <- x1*slope(W) + intercept(W)
+perceptron::label_vector(x0, y0, x1, y1, label = "hyperplane")
+```
+

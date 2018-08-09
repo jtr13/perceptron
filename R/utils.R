@@ -126,6 +126,7 @@ draw_hyperplane <- function(w) {
 
 draw_points <- function(X1, X2, Y, axes = FALSE) {
 
+  par(pty="s")
   colors <- c("green", "pink")
 
   X1range <- max(X1) - min(X1)
@@ -216,7 +217,31 @@ draw_new_weight_vector <- function(w, pt, y) {
        length = .1)
 }
 
+#' function to label a vector
+#'
+#' @name label_vector
+#'
+#' @param x0,y0	coordinates of points from which to draw
+#' @param x1,y1	coordinates of points to which to draw
+#' @param label
+#'
+#' @export
+#'
 
+label_vector <- function(x0, y0, x1, y1, label) {
+
+  x <- (x0 + x1)/2
+  y <- (y0 + y1)/2
+  cat(x0,y0,x1,y1, "\n")
+
+srt =   atan((y1-y0)/(x1-x0))*180/pi
+cat(srt)
+
+text(x, y, label,
+     srt = srt,
+     pos = 3)
+
+}
 
 
 

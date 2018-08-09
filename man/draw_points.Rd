@@ -4,7 +4,7 @@
 \alias{draw_points}
 \title{function to draw points}
 \usage{
-draw_points(X1, X2, Y)
+draw_points(X1, X2, Y, axes = FALSE)
 }
 \arguments{
 \item{X1}{vector of values}
