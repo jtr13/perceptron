@@ -52,20 +52,36 @@ Next we circle any point for which $y_i \neq$ sign$(w_ix_i)$ -- these are the mi
 
 ```{r circlepoints}
 <<weightvector>>
-mis.points <- X[sign(W %*% t(X)) != Y, , drop = F]
-points(mis.points[,2], mis.points[,3], 
+all.mis.points <- X[sign(W %*% t(X)) != Y, , drop = F]
+points(all.mis.points[,2], all.mis.points[,3], 
        col = "blue", cex = 2)
 ```
 
 
 Note that visually, *the line orthogonal to the weight vector* is the decision boundary between the two classes.  This is true because for points on the line, sign $(w_ix_i) = 0.$
 
-```{r}
+```{r hyperplane}
 <<circlepoints>>
 draw_hyperplane(W)
 e <- get_endpoints(W)
 label_vector(e[1], e[2], e[3], e[4],
              label = "hyperplane",
              "below")
+```
+
+### The Algorithm
+
+Now we're ready to start adjusting the weight vector. The first step is to randomly choose one of the misclassified points:
+
+```{r mispoint}
+<<weightvector>>
+draw_hyperplane(W)
+label_vector(e[1], e[2], e[3], e[4],
+             label = "hyperplane",
+             "below")
+index <- sample(nrow(all.mis.points), 1)  
+mis.point <- all.mis.points[index,]
+circle_point(mis.point)
+draw_mis_vector(mis.point)
 ```
 
