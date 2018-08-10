@@ -208,7 +208,6 @@ draw_mis_vector_added <- function(w, pt, y) {
 #' @export
 #'
 
-
 draw_new_weight_vector <- function(w, pt, y) {
   shift <- shift(w)
   pt <- as.vector(pt)
@@ -216,38 +215,9 @@ draw_new_weight_vector <- function(w, pt, y) {
        w[2] + shift["x"] + y * pt[2],
        w[3] + shift["y"] + y * pt[3],
        col = "#8D2273",
-       lwd = 3,
        length = .1)
 }
 
-#' function to label a vector
-#'
-#' @name label_vector
-#'
-#' @param x0,y0	coordinates of points from which to draw
-#' @param x1,y1	coordinates of points to which to draw
-#' @param label
-#'
-#' @param position ("above" or "below")
-#'
-#' @export
-#'
-
-label_vector <- function(x0, y0, x1, y1, label, position = "above") {
-  if (position == "below") {
-    pos = 1
-  } else{
-    pos = 3
-  }
-
-  x <- (x0 + x1)/2
-  y <- (y0 + y1)/2
-
-srt = atan((y1-y0)/(x1-x0))*180/pi
-
-text(x, y, label, srt = srt, pos = pos, cex = .8)
-
-}
 
 #' function to get endpoints of a line as it crosses through a plot window
 #'
@@ -274,6 +244,34 @@ get_endpoints <- function(W) {
   return(c(x0, y0, x1, y1))
 }
 
+#' function to label a vector
+#'
+#' @name label_vector
+#'
+#' @param x0,y0	coordinates of points from which to draw
+#' @param x1,y1	coordinates of points to which to draw
+#' @param label
+#'
+#' @param position ("above" or "below")
+#'
+#' @export
+#'
+
+label_vector <- function(x0, y0, x1, y1, label, position = "above") {
+  if (position == "below") {
+    pos = 1
+  } else{
+    pos = 3
+  }
+
+  x <- (x0 + x1)/2
+  y <- (y0 + y1)/2
+
+  srt = atan((y1-y0)/(x1-x0))*180/pi
+
+  text(x, y, label, srt = srt, pos = pos, cex = .8)
+
+}
 
 
 
