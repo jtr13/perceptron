@@ -12,6 +12,8 @@ draw_points(X1, X2, Y, axes = FALSE)
 \item{X2}{vector of values}
 
 \item{Y}{vector of values (-1 or 1)}
+
+\item{axes}{logical}
 }
 \description{
 function to draw points

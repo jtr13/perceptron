@@ -31,56 +31,41 @@ X <- matrix(c(-1, 1, 2, 4, 6, 4, 6, 6, 5, 8,
 
 Y <- c(-1, -1, -1, -1, -1, 1, 1, 1, 1, 1)
 X <- cbind(rep(1, length(Y)), X)
-perceptron::draw_points(X[,2], X[,3], Y, axes = TRUE)
+draw_points(X[,2], X[,3], Y, axes = TRUE)
 ```
 
 
-We start with an arbitrary weight vector, $(w0, w1, w2)$.  Often $(0, 0, 0)$ is used, but we'll start with $(0, .5, .5) so we can visualize it:
+We start with an arbitrary weight vector, $(w0, w1, w2)$.  Often $(0, 0, 0)$ is used, but we'll start with $(0, .5, .5)$ so we can visualize it:
 
 ```{r weightvector}
 W <- c(0, .5, .5)
-shift <- shift(W)
-perceptron::draw_points(X[,2], X[,3], Y, axes = TRUE)
-perceptron::draw_weight_vector(W)
-perceptron::label_vector(shift["x"],
-                         shift["y"],
-                         W[2] + shift["x"],
-                         W[3] + shift["y"], 
-                         "weight")
+s <- shift(W)
+draw_points(X[,2], X[,3], Y, axes = TRUE)
+mtext("X1", side = 1, line = 3)
+mtext("X2", side = 2, line = 3)
+draw_weight_vector(W)
+label_vector(s["x"], s["y"], W[2] + s["x"],
+             W[3] + s["y"], "weight")
 ```
 
 Next we circle any point for which $y_i \neq$ sign$(w_ix_i)$ -- these are the misclassified points.
 
 ```{r circlepoints}
-perceptron::draw_points(X[,2], X[,3], Y, axes = TRUE)
-perceptron::draw_weight_vector(W)
-perceptron::label_vector(shift["x"],
-                         shift["y"],
-                         W[2] + shift["x"],
-                         W[3] + shift["y"], 
-                         "weight")
+<<weightvector>>
 mis.points <- X[sign(W %*% t(X)) != Y, , drop = F]
-apply(mis.points, 1, perceptron::circle_point)
+points(mis.points[,2], mis.points[,3], 
+       col = "blue", cex = 2)
 ```
 
 
-Note that visually, *the line orthogonal to the weight vector* is the decision boundary between the two classes.  This is true because for points on the line, sign$(w_ix_i) = 0.$
+Note that visually, *the line orthogonal to the weight vector* is the decision boundary between the two classes.  This is true because for points on the line, sign $(w_ix_i) = 0.$
 
 ```{r}
-perceptron::draw_points(X[,2], X[,3], Y, axes = TRUE)
-perceptron::draw_weight_vector(W)
-perceptron::label_vector(shift["x"],
-                         shift["y"],
-                         W[2] + shift["x"],
-                         W[3] + shift["y"], 
-                         "weight")
-mis.points <- X[sign(W %*% t(X)) != Y, , drop = F]
-apply(mis.points, 1, perceptron::circle_point)
-perceptron::draw_hyperplane(W)
-x0 <- par()$usr[1]
-y0 <- x0*slope(W) + intercept(W)
-x1 <- floor(par()$usr[2])
-y1 <- x1*slope(W) + intercept(W)
-perceptron::label_vector(x0, y0, x1, y1, label = "hyperplane")
+<<circlepoints>>
+draw_hyperplane(W)
+e <- get_endpoints(W)
+label_vector(e[1], e[2], e[3], e[4],
+             label = "hyperplane",
+             "below")
 ```
 

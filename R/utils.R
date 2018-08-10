@@ -118,6 +118,8 @@ draw_hyperplane <- function(w) {
 #'
 #' @param Y vector of values (-1 or 1)
 #'
+#' @param axes logical
+#'
 #' @export
 
 
@@ -135,7 +137,8 @@ draw_points <- function(X1, X2, Y, axes = FALSE) {
 
   plot(X1, X2, pch = 16, bty = "l",
      col = colors[as.factor(Y)],
-     asp = 1, axes = axes, las = 1)
+     asp = 1, axes = axes, las = 1,
+     xlab = "", ylab = "")
 }
 
 #' function to draw a weight vector
@@ -225,25 +228,51 @@ draw_new_weight_vector <- function(w, pt, y) {
 #' @param x1,y1	coordinates of points to which to draw
 #' @param label
 #'
+#' @param position ("above" or "below")
+#'
 #' @export
 #'
 
-label_vector <- function(x0, y0, x1, y1, label) {
+label_vector <- function(x0, y0, x1, y1, label, position = "above") {
+  if (position == "below") {
+    pos = 1
+  } else{
+    pos = 3
+  }
 
   x <- (x0 + x1)/2
   y <- (y0 + y1)/2
-  cat(x0,y0,x1,y1, "\n")
 
-srt =   atan((y1-y0)/(x1-x0))*180/pi
-cat(srt)
+srt = atan((y1-y0)/(x1-x0))*180/pi
 
-text(x, y, label,
-     srt = srt,
-     pos = 3)
+text(x, y, label, srt = srt, pos = pos, cex = .8)
 
 }
 
+#' function to get endpoints of a line as it crosses through a plot window
+#'
+#' @name get_endpoints
+#'
+#' @param W	weight vector
+#'
+#' @export
+#'
 
+get_endpoints <- function(W) {
+
+  x0 <- par()$usr[1]
+  y0 <- x0*slope(W) + intercept(W)
+  if ((y0 > par()$usr[3]) & (y0 < par()$usr[4])) {
+    y1 <- par()$usr[3]
+    x1 <- (y1 - intercept(W))/slope(W)
+  } else {
+    y0 <- par()$usr[3]
+    x0 <- (y0 - intercept(W))/slope(W)
+    x1 <- par()$usr[2]
+    y1 <- x1*slope(W) + intercept(W)
+  }
+  return(c(x0, y0, x1, y1))
+}
 
 
 

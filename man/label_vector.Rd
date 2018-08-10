@@ -4,7 +4,7 @@
 \alias{label_vector}
 \title{function to label a vector}
 \usage{
-label_vector(x0, y0, x1, y1, label)
+label_vector(x0, y0, x1, y1, label, position = "above")
 }
 \arguments{
 \item{x0, y0}{coordinates of points from which to draw}
@@ -12,6 +12,8 @@ label_vector(x0, y0, x1, y1, label)
 \item{x1, y1}{coordinates of points to which to draw}
 
 \item{label}{}
+
+\item{position}{("above" or "below")}
 }
 \description{
 function to label a vector
