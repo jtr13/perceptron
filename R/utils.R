@@ -31,7 +31,9 @@ Random.Unit <-function(n, dim, threshold) {
 #'
 #' @export
 
+
 intercept <- function(w) -w[1]/w[3]
+# b/c the dot product of w and (1, 0, b) = 0
 
 #' function to determine the slope of a hyperplane
 #'
@@ -214,7 +216,7 @@ draw_new_weight_vector <- function(w, pt, y) {
   arrows(shift["x"], shift["y"],
        w[2] + shift["x"] + y * pt[2],
        w[3] + shift["y"] + y * pt[3],
-       col = "#8D2273",
+       col = "#8D2273", lty = "dashed",
        length = .1)
 }
 
