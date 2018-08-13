@@ -1,17 +1,13 @@
 ---
 title: "perceptron"
 author: "Joyce Robbins"
-date: "8/8/2018"
-output: 
-  html_document:
-    code_folding: hide
-editor_options: 
-  chunk_output_type: console
+date: "8/13/2018"
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
 library(knitr)
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 The perceptron is a simple algorithm that learns to classify inputs into two classes by adjusting the weights (w) in the equation $y_i =$ sign$(w_ix_i)$ until all inputs in a training set are correctly classified. Here the steps of algorithm will be presented visually in two-dimensional space.
