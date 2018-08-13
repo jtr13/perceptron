@@ -131,7 +131,7 @@ draw_hyperplane <- function(w) {
 draw_points <- function(X1, X2, Y, axes = FALSE) {
 
   par(pty="s")
-  colors <- c("green", "pink")
+  colors <- c("blue", "darkgreen")
 
   X1range <- max(X1) - min(X1)
 
@@ -230,20 +230,26 @@ draw_new_weight_vector <- function(w, pt, y) {
 #' @export
 #'
 
-get_endpoints <- function(W) {
 
-  x0 <- par()$usr[1]
-  y0 <- x0*slope(W) + intercept(W)
-  if ((y0 > par()$usr[3]) & (y0 < par()$usr[4])) {
-    y1 <- par()$usr[3]
-    x1 <- (y1 - intercept(W))/slope(W)
-  } else {
-    y0 <- par()$usr[3]
-    x0 <- (y0 - intercept(W))/slope(W)
-    x1 <- par()$usr[2]
-    y1 <- x1*slope(W) + intercept(W)
-  }
-  return(c(x0, y0, x1, y1))
+
+get_endpoints <- function(W) {
+  x <- par()$usr[1:2]
+  y <- x*slope(W) + intercept(W)
+  cross = (y > par()$usr[3]) & (y < par()$usr[4])
+  df1 <- data.frame(x, y, cross)
+
+  y = par()$usr[3:4]
+  x = (y - intercept(W))/slope(W)
+  cross = (x > par()$usr[1]) & (x < par()$usr[2])
+
+  df2 <- data.frame(x, y, cross)
+
+  # get only rows for which cross == TRUE
+  ends <- rbind(df1[df1$cross,], df2[df2$cross,])[,1:2]
+
+  return(c(ends[1,1], ends[1,2],
+           ends[2,1], ends[2,2]))
+
 }
 
 #' function to label a vector
