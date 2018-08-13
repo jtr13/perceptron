@@ -181,8 +181,6 @@ label_vector(s["x"], s["y"], W[2] + s["x"],
 
 Finally, we draw the new hyperplane:
 
-
-
 ```{r}
 <<hyperplane>>
 while (!converged) {
@@ -190,39 +188,42 @@ while (!converged) {
   <<step2>>
   <<hyperplane>>
 }    
+p <- par()$usr
 ```
 
-Summary of `r i` iterations:
+### Summary of `r i` iterations:
 
 ```{r, warning = FALSE, message = FALSE}
 library(tidyverse)
+library(scales)
+save(weight_matrix, file = "w.rds")
+
+colnames(X) <- c("X0", "X1", "X2")
+
+x <- as.data.frame(X) %>% mutate(Y = Y)
+
 df <- data.frame(slope = apply(weight_matrix, 1, slope),
                  intercept = apply(weight_matrix, 1, intercept))
-colnames(X) <- c("X0", "X1", "X2")
-x <- as.data.frame(X) %>% mutate(Y = Y)
+
 df <- df %>% 
-  rownames_to_column("iteration") %>%
-  mutate(iteration = as.numeric(iteration))
+  mutate(iteration = as.factor(1:nrow(df)))
 
 # need to split up x since ggplot2 can only handle one color scale, and I need it for geom_abline
 # 
 group1 <- x[Y == -1,]
 group2 <- x[Y == 1,]
 
+purples <- brewer_pal(palette = "Purples")(9)
+
 ggplot(group1, aes(X1, X2)) + 
   geom_point(size = 2, color = "blue") +
-  geom_point(data = group2, size = 2,
-             color = "darkgreen") +
-  geom_abline(data = df, 
-              aes(slope = slope,
-                  intercept = intercept,
-                  color = iteration)) +
-  scale_color_distiller(palette = "Purples",
-                        direction = 1) +
-  geom_abline(data = df[nrow(df),],
-              aes(slope = slope,
-                  intercept = intercept),
-              size = 2, color = "#53278F") +
-  theme_classic()
+  geom_point(data = group2, size = 2, color = "darkgreen") +
+  geom_abline(data = df, aes(slope = slope, intercept = intercept,
+                  color = iteration)) + 
+  scale_color_manual(values = gradient_n_pal(purples)(seq(0, 1, length.out = nrow(df)))) +
+  geom_abline(data = df[nrow(df),], aes(slope = slope,
+                  intercept = intercept), size = 2, 
+              color = "#53278F") +
+  theme_classic() + xlim(p[1], p[2]) + ylim(p[3], p[4])
 ```
 
