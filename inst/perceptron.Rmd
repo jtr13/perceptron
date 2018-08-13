@@ -11,10 +11,7 @@ editor_options:
 
 ```{r setup, include=FALSE}
 library(knitr)
-library(perceptron)
 knitr::opts_chunk$set(echo = TRUE)
-
-#install_github("jtr13/perceptron")
 ```
 
 The perceptron is a simple algorithm that learns to classify inputs into two classes by adjusting the weights (w) in the equation $y_i =$ sign$(w_ix_i)$ until all inputs in a training set are correctly classified. Here the steps of algorithm will be presented visually in two-dimensional space.
@@ -23,17 +20,30 @@ The perceptron is a simple algorithm that learns to classify inputs into two cla
 
 We start by plotting $(x_1, x_2)$, coloring each point by class. Note that the points can be separated by a line; if this is not the case, the algorithm won't work.
 
-```{r}
-#X <- matrix(c(-1, 1, 2, 4, 6, 4, 6, 6, 5, 8,
-#                -3, 7, 4, 4, 2, 8, 6, 8, 10, 10)/5, 10)
-
+```{r, eval = FALSE, include = FALSE}
 X <- matrix(c(-3, -1, 0, 2, 4, 2, 4, 4, 3, 8,
                 -8, 2, -1, -1, -3, 3, 1, 3, 5, 5)/5, 10)
 
 Y <- c(-1, -1, -1, -1, -1, 1, 1, 1, 1, 1)
+```
+
+
+```{r}
+#install_github("jtr13/perceptron")
+library(perceptron)
+set.seed(5)
+X <- matrix(c(runif(20), runif(20)+1.5, rnorm(40)), nrow = 40)
+Y <- c(rep(-1, 20), rep(1, 20))
+```
+
+
+```{r}
 X <- cbind(rep(1, length(Y)), X)
-W <- c(.25, .5, .5)
+W <- c(0, .5, .5)
+weight_matrix <- matrix(W, 1)
 i <- 1
+converged <- FALSE
+set.seed(1)
 draw_points(X[,2], X[,3], Y, axes = TRUE)
 ```
 
@@ -41,7 +51,6 @@ draw_points(X[,2], X[,3], Y, axes = TRUE)
 We start with an arbitrary weight vector, $(w0, w1, w2)$.  Often $(0, 0, 0)$ is used, but we'll start with $($ `r W` $)$ so we can visualize it:
 
 ```{r weightvector}
-
 s <- shift(W)
 draw_points(X[,2], X[,3], Y, axes = TRUE)
 mtext("X1", side = 1, line = 3)
@@ -54,44 +63,52 @@ label_vector(s["x"], s["y"], W[2] + s["x"],
 
 The decision boundary, or hyperplane, is the line orthogonal to the weight vector. For points on the line, the sign of $(w_ix_i)$ equals zero. On one side of the line, the sign of $(w_ix_i)$ is greater than zero whereas on the other side the sign of $(w_ix_i)$ is less than zero; hence the line serves to divide all points into two classes according to the perceptron logic.
 
+```{r misclassified}
+all.mis.points <- X[sign(W %*% t(X)) != Y, , drop = F]
+if (length(all.mis.points) == 0) converged <- TRUE
+if (!converged) {
+  all.mis.points.Y <- Y[sign(W %*% t(X)) != Y]
+  index <- sample(nrow(all.mis.points), 1)
+  mis.point <- all.mis.points[index,]
+  mis.point.Y <- all.mis.points.Y[index]
+}
+```
+
+
 ```{r hyperplane}
 <<weightvector>>
 draw_hyperplane(W)
 e <- get_endpoints(W)
-label_vector(e[1], e[2], e[3], e[4],
-             label = "hyperplane",
-             "below")
+if (sum(is.na(e)) == 0) {
+  label_vector(e[1], e[2], e[3], e[4], 
+               label = "hyperplane",
+               "below")
+}
+<<misclassified>>  
+if (!converged) {
+  title(paste("Hyperplane, iteration ", i))
+} else {
+    title(paste("\nConverged! Iteration ", i))
+}
 ```
+
 
 Note the circled points -- these are the misclassified points -- the ones for which $y_i \neq$ sign$(w_ix_i)$.
 
+
 ```{r circlepoints}
 <<hyperplane>>
-all.mis.points <- X[sign(W %*% t(X)) != Y, , drop = F]
-all.mis.points.Y <- Y[sign(W %*% t(X)) != Y]
-points(all.mis.points[,2], all.mis.points[,3], 
+points(all.mis.points[,2],
+       all.mis.points[,3], 
        col = "blue", cex = 2)
 ```
 
 
 ### The Algorithm
 
-Now we're ready to start adjusting the weight vector. The first step is to randomly choose one of the misclassified points:
+The perceptron algorithm works by updating the weight vector based on a randomly selected misclassified point, calculating the new hyperplane, and repeating until the hyperplane separates all points into the two classes.
 
-```{r mispoint}
-draw_points(X[,2], X[,3], Y, axes = TRUE)
-title(paste("Iteration: ", i))
-draw_weight_vector(W)
-draw_hyperplane(W)
-set.seed(1)  
-#index <- sample(nrow(all.mis.points), 1)  
-index <- 1
-mis.point <- all.mis.points[index,]
-mis.point.Y <- all.mis.points.Y[index]
-circle_point(mis.point)
-```
-
-The perceptron formula for the new weight vector is:
+The formula for the new weight vector is:
 
 $w_{t+1} = w_t + \eta y_i x_i$, where  
 
@@ -103,27 +120,46 @@ $\eta =$ the learning rate, which we'll set to 1 for the sake of simplicity
 
 Visually, the new weight vector, $w_{t+1}$, is determined by adding $y_ix_i$ to $w_t$ and then shifting by the offset $w_0/||w||_2$.
 
-Here, the dashed blue arrow is $x_i$; the solid blue arrow shows $y_ix_i$ added to $w_t$:
+We'll go through the algorithm one step at a time.
+
+We begin with our original weight vector and hyperplane:
+
+```{r}
+<<hyperplane>>
+```
 
 
-```{r add}
-<<mispoint>>
+Next we randomly select a misclassified point. In the diagram below, $x_i$ is shown as a **dashed blue arrow**, and $y_ix_i$ added to $w_t$ as a **solid blue arrow**:
+
+
+```{r step1}
+draw_points(X[,2], X[,3], Y, axes = TRUE)
+title("1) Select a misclassified point")
+draw_weight_vector(W)
+draw_hyperplane(W)
+circle_point(mis.point)
 draw_mis_vector(mis.point)
-label_vector(0, 0, mis.point[2], mis.point[3], expression(x[i]))
-draw_mis_vector_added(W, mis.point, mis.point.Y)
+label_vector(0, 0, mis.point[2],
+             mis.point[3],
+             expression(x[i]))
+draw_mis_vector_added(W, mis.point,
+                      mis.point.Y)
 s <- shift(W)
 label_vector(W[2] + s["x"], 
              W[3] + s["y"],
-             W[2] + s["x"] + mis.point.Y * mis.point[2],
-             W[3] + s["y"] + mis.point.Y * mis.point[3], expression(w[t] + y[i]*x[i]), "below")
-
+             W[2] + s["x"] + mis.point.Y *
+               mis.point[2],
+             W[3] + s["y"] + mis.point.Y *
+               mis.point[3],
+             expression(w[t] + y[i]*x[i]),
+             "below")
 ```
 
-The dashed purple arrow is the vector sum; the solid red arrow -- the new weight vector -- shows the sum shifted by $w_0/||w||_2$:
+Next we determine the new weight vector by shifting the vector sum by $w_0/||w||_2$:
 
-```{r newweight}
+```{r step2}
 draw_points(X[,2], X[,3], Y, axes = TRUE)
-title(paste("Iteration ", i))
+title("2) Draw new weight vector")
 draw_weight_vector(W)
 draw_mis_vector_added(W, mis.point, mis.point.Y)
 draw_new_weight_vector(W, mis.point, mis.point.Y)
@@ -134,6 +170,7 @@ label_vector(s["x"],
 
 # calculate new weight vector
 W <- W + mis.point.Y %*% mis.point
+weight_matrix <- rbind(weight_matrix, matrix(W, 1))
 i <- i + 1
 draw_weight_vector(W)
 s <- shift(W)
@@ -144,61 +181,48 @@ label_vector(s["x"], s["y"], W[2] + s["x"],
 
 Finally, we draw the new hyperplane:
 
-```{r it2}
-draw_points(X[,2], X[,3], Y, axes = TRUE)
-title(paste("Iteration: ", i))
-draw_weight_vector(W)
-draw_hyperplane(W)
-```
-
-And start the process again:
-
-```{r}
-<<it2>>
-all.mis.points <- X[sign(W %*% t(X)) != Y, , drop = F]
-all.mis.points.Y <- Y[sign(W %*% t(X)) != Y]
-#index <- sample(nrow(all.mis.points), 1)  
-index <- 1
-mis.point <- all.mis.points[index,]
-mis.point.Y <- all.mis.points.Y[index]
-circle_point(mis.point)  
-draw_mis_vector(mis.point)
-draw_mis_vector_added(W, mis.point, mis.point.Y)
-draw_new_weight_vector(W, mis.point, mis.point.Y)
-```
-
-```{r}
-<<newweight>>
-```
 
 
 ```{r}
 <<hyperplane>>
-title(paste("Iteration ", i))
+while (!converged) {
+  <<step1>>
+  <<step2>>
+  <<hyperplane>>
+}    
 ```
 
-And start the process again:
+Summary of `r i` iterations:
 
-```{r}
-<<it2>>
-all.mis.points <- X[sign(W %*% t(X)) != Y, , drop = F]
-all.mis.points.Y <- Y[sign(W %*% t(X)) != Y]
-#index <- sample(nrow(all.mis.points), 1)  
-index <- 1
-mis.point <- all.mis.points[index,]
-mis.point.Y <- all.mis.points.Y[index]
-circle_point(mis.point)  
-draw_mis_vector(mis.point)
-draw_mis_vector_added(W, mis.point, mis.point.Y)
-draw_new_weight_vector(W, mis.point, mis.point.Y)
+```{r, warning = FALSE, message = FALSE}
+library(tidyverse)
+df <- data.frame(slope = apply(weight_matrix, 1, slope),
+                 intercept = apply(weight_matrix, 1, intercept))
+colnames(X) <- c("X0", "X1", "X2")
+x <- as.data.frame(X) %>% mutate(Y = Y)
+df <- df %>% 
+  rownames_to_column("iteration") %>%
+  mutate(iteration = as.numeric(iteration))
+
+# need to split up x since ggplot2 can only handle one color scale, and I need it for geom_abline
+# 
+group1 <- x[Y == -1,]
+group2 <- x[Y == 1,]
+
+ggplot(group1, aes(X1, X2)) + 
+  geom_point(size = 2, color = "blue") +
+  geom_point(data = group2, size = 2,
+             color = "darkgreen") +
+  geom_abline(data = df, 
+              aes(slope = slope,
+                  intercept = intercept,
+                  color = iteration)) +
+  scale_color_distiller(palette = "Purples",
+                        direction = 1) +
+  geom_abline(data = df[nrow(df),],
+              aes(slope = slope,
+                  intercept = intercept),
+              size = 2, color = "#53278F") +
+  theme_classic()
 ```
 
-```{r}
-<<newweight>>
-```
-
-
-```{r}
-<<hyperplane>>
-title(paste("Iteration ", i))
-```
