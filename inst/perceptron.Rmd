@@ -2,13 +2,18 @@
 title: "perceptron"
 author: "Joyce Robbins"
 date: "8/13/2018"
-output: github_document
+output: 
+  pdf_document: 
+    fig_crop: no
+    fig_height: 4
+    fig_width: 6
 ---
 
 ```{r setup, include=FALSE}
 library(knitr)
 knitr::opts_chunk$set(echo = FALSE)
 ```
+
 
 The perceptron is a simple algorithm that learns to classify inputs into two classes by adjusting the weights (w) in the equation $y_i =$ sign$(w_ix_i)$ until all inputs in a training set are correctly classified. Here the steps of algorithm will be presented visually in two-dimensional space.
 
@@ -213,7 +218,7 @@ purples <- brewer_pal(palette = "Purples")(9)
 
 ggplot(group1, aes(X1, X2)) + 
   geom_point(size = 2, color = "blue") +
-  geom_point(data = group2, size = 2, color = "darkgreen") +
+  geom_point(data = group2, size = 2, color = "red") +
   geom_abline(data = df, aes(slope = slope, intercept = intercept,
                   color = iteration)) + 
   scale_color_manual(values = gradient_n_pal(purples)(seq(0, 1, length.out = nrow(df)))) +
@@ -221,5 +226,6 @@ ggplot(group1, aes(X1, X2)) +
                   intercept = intercept), size = 2, 
               color = "#53278F") +
   theme_classic() + xlim(p[1], p[2]) + ylim(p[3], p[4])
+
 ```
 

@@ -131,7 +131,7 @@ draw_hyperplane <- function(w) {
 draw_points <- function(X1, X2, Y, axes = FALSE) {
 
   par(pty="s")
-  colors <- c("blue", "darkgreen")
+  colors <- c("blue", "red")
 
   X1range <- max(X1) - min(X1)
 
