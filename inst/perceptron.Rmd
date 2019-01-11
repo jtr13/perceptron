@@ -6,12 +6,12 @@ output:
   pdf_document: 
     fig_crop: no
     fig_height: 4
-    fig_width: 6
 ---
 
 ```{r setup, include=FALSE}
 library(knitr)
 knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(global.par = TRUE) 
 ```
 
 
@@ -22,6 +22,7 @@ The perceptron is a simple algorithm that learns to classify inputs into two cla
 We start by plotting $(x_1, x_2)$, coloring each point by class. Note that the points can be separated by a line; if this is not the case, the algorithm won't work.
 
 ```{r, eval = FALSE, include = FALSE}
+# not used
 X <- matrix(c(-3, -1, 0, 2, 4, 2, 4, 4, 3, 8,
                 -8, 2, -1, -1, -3, 3, 1, 3, 5, 5)/5, 10)
 
@@ -30,9 +31,9 @@ Y <- c(-1, -1, -1, -1, -1, 1, 1, 1, 1, 1)
 
 
 ```{r}
-#install_github("jtr13/perceptron")
+#devtools::install_github("jtr13/perceptron")
 library(perceptron)
-set.seed(5)
+set.seed(9)
 X <- matrix(c(runif(20), runif(20)+1.5, rnorm(40)), nrow = 40)
 Y <- c(rep(-1, 20), rep(1, 20))
 ```
@@ -45,6 +46,7 @@ weight_matrix <- matrix(W, 1)
 i <- 1
 converged <- FALSE
 set.seed(1)
+par(xpd = TRUE)
 draw_points(X[,2], X[,3], Y, axes = TRUE)
 ```
 
